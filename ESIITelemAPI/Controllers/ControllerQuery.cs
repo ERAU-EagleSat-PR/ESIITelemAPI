@@ -23,11 +23,11 @@ namespace ESIITelemAPI.Controllers
             _config = config;
         }
 
-        protected async Task<JsonElement> Query(string verb, Type entity, JsonElement payload = default(JsonElement))
+        protected async Task<JsonElement> Query(string verb, Type entity, int? id = null, JsonElement payload = default(JsonElement))
         {
             JsonDocument result = null;
 
-            if (!(new string[] {"get", "post"}).Contains(verb.ToLower()))
+            if (!(new string[] {"get", "put"}).Contains(verb.ToLower()))
             {
                 throw new ArgumentException($"verb '{verb}' not supported", nameof(verb));
             }
@@ -46,7 +46,10 @@ namespace ESIITelemAPI.Controllers
                     var json = JsonSerializer.Serialize(payload);
                     parameters.Add("Json", json);
                 }
-
+                
+                if (id.HasValue)
+                    parameters.Add("Id", id.Value);
+                
                 var qr = await conn.ExecuteScalarAsync<string>(
                     sql: procedure, 
                     param: parameters, 

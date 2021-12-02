@@ -21,6 +21,7 @@
       <Compile Remove="Controllers\TelemetryEPSController.cs" />
       <Compile Remove="WeatherForecast.cs" />
       <Compile Remove="Controllers\WeatherForecastController.cs" />
+      <Compile Remove="Controllers\EPSAverageBatteryVoltageController.cs" />
     </ItemGroup>
 
 </Project>
