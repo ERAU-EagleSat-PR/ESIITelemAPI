@@ -14,50 +14,49 @@ namespace ESIITelemAPI.Controllers
     [Route("[controller]")]
     public class EpsController : ControllerQuery
     {
-        private readonly IConfiguration _config;
-
         public EpsController(IConfiguration config, ILogger<EpsController> logger) :
-            base(config, logger)
-        {
-            _config = config;
-        }
+            base(config, logger) {}
 
         [HttpGet]
         public async Task<JsonElement> Get()
         {
-            JsonDocument result = null;
-            
-            using(var conn = new SqlConnection(_config.GetConnectionString("ReadOnlyConnection"))) {
-                DynamicParameters parameters = new DynamicParameters();
-
-                string procedure = $"web.get_alleps";
-                
-                var qr = await conn.ExecuteScalarAsync<string>(
-                    sql: procedure, 
-                    param: parameters, 
-                    commandType: CommandType.StoredProcedure
-                ); 
-                
-                if (qr != null)
-                    result = JsonDocument.Parse(qr);
-            };
-            
-            if (result == null) 
-                result = JsonDocument.Parse("[]");
-                        
-            return result.RootElement;
+            return await this.Query("get", "alleps");
         }
 
         [HttpGet("{downlinkId}")]
         public async Task<JsonElement> Get(int downlinkId)
         {
-            return await this.Query("get", this.GetType(), downlinkId);
+            return await this.Query("get", "eps", downlinkId);
+        }
+        
+        [HttpGet("AverageBatteryVoltage")]
+        public async Task<JsonElement> GetAverageBatteryVoltage()
+        {
+            return await this.Query("get", "allepsavgbatvol");
+        }
+        
+        [HttpGet("Brownouts")]
+        public async Task<JsonElement> GetBrownouts()
+        {
+            return await this.Query("get", "allbrownouts");
+        }
+        
+        [HttpGet("ChargeTime")]
+        public async Task<JsonElement> GetChargeTime()
+        {
+            return await this.Query("get", "allchargetime");
+        }
+        
+        [HttpGet("PeakChargePower")]
+        public async Task<JsonElement> GetPeakChargePower()
+        {
+            return await this.Query("get", "allpeakchargepower");
         }
 
         [HttpPut]
-        public async Task<JsonElement> Post([FromBody]JsonElement payload)
+        public async Task<JsonElement> Put([FromBody]JsonElement payload)
         {
-            return await this.Query("put", this.GetType(), payload: payload);
+            return await this.Query("put", "eps", payload: payload);
         }
     }
 }

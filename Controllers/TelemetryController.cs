@@ -13,50 +13,25 @@ namespace ESIITelemAPI.Controllers
     [Route("[controller]")]
     public class TelemetryController : ControllerQuery
     {
-        private readonly IConfiguration _config;
-
         public TelemetryController(IConfiguration config, ILogger<TelemetryController> logger) :
-            base(config, logger)
-        {
-            _config = config;
-        }
+            base(config, logger) {}
         
         [HttpGet]
         public async Task<JsonElement> Get()
         {
-            JsonDocument result = null;
-            
-            using(var conn = new SqlConnection(_config.GetConnectionString("ReadOnlyConnection"))) {
-                DynamicParameters parameters = new DynamicParameters();
-
-                string procedure = $"web.get_alltelemetry";
-                
-                var qr = await conn.ExecuteScalarAsync<string>(
-                    sql: procedure, 
-                    param: parameters, 
-                    commandType: CommandType.StoredProcedure
-                ); 
-                
-                if (qr != null)
-                    result = JsonDocument.Parse(qr);
-            };
-            
-            if (result == null) 
-                result = JsonDocument.Parse("[]");
-                        
-            return result.RootElement;
+            return await this.Query("get", "alltelemetry");
         }
         
         [HttpGet("{downlinkId}")]
         public async Task<JsonElement> Get(int downlinkId)
         {
-            return await this.Query("get", this.GetType(), downlinkId);
+            return await this.Query("get", "telemetry", downlinkId);
         }
 
         [HttpPut]
-        public async Task<JsonElement> Post([FromBody]JsonElement payload)
+        public async Task<JsonElement> Put([FromBody]JsonElement payload)
         {
-            return await this.Query("put", this.GetType(), payload: payload);
+            return await this.Query("put", "telemetry", payload: payload);
         }
     }
 }

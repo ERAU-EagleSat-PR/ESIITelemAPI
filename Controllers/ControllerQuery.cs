@@ -23,7 +23,7 @@ namespace ESIITelemAPI.Controllers
             _config = config;
         }
 
-        protected async Task<JsonElement> Query(string verb, Type entity, int? id = null, JsonElement payload = default(JsonElement))
+        protected async Task<JsonElement> Query(string verb, string entityName, int? id = null, JsonElement payload = default(JsonElement))
         {
             JsonDocument result = null;
 
@@ -31,8 +31,8 @@ namespace ESIITelemAPI.Controllers
             {
                 throw new ArgumentException($"verb '{verb}' not supported", nameof(verb));
             }
-
-            string entityName = entity.Name.Replace("Controller", string.Empty).ToLower();
+            
+            //string entityName = entity.Name.Replace("Controller", string.Empty).ToLower();
             string procedure = $"web.{verb}_{entityName}";
             _logger.LogDebug($"Executing {procedure}");
 
