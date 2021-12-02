@@ -22,10 +22,20 @@
       <Compile Remove="WeatherForecast.cs" />
       <Compile Remove="Controllers\WeatherForecastController.cs" />
       <Compile Remove="Controllers\EPSAverageBatteryVoltageController.cs" />
+      <Compile Remove="Properties\PublishProfiles\**" />
     </ItemGroup>
 
     <ItemGroup>
       <Content Remove="wwwroot\index.cshtml.html" />
+      <Content Remove="Properties\PublishProfiles\**" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <EmbeddedResource Remove="Properties\PublishProfiles\**" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <None Remove="Properties\PublishProfiles\**" />
     </ItemGroup>
 
 </Project>
