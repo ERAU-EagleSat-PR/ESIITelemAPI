@@ -24,4 +24,8 @@
       <Compile Remove="Controllers\EPSAverageBatteryVoltageController.cs" />
     </ItemGroup>
 
+    <ItemGroup>
+      <Content Remove="wwwroot\index.cshtml.html" />
+    </ItemGroup>
+
 </Project>
