@@ -41,7 +41,8 @@ namespace ESIITelemAPI.Controllers
 
             using(var conn = new SqlConnection(_config.GetConnectionString(connectionStringName))) {
                 DynamicParameters parameters = new DynamicParameters();
-
+                
+                /*
                 if (payload.ValueKind != default(JsonValueKind))
                 {
                     var json = JsonSerializer.Serialize(payload);
@@ -50,13 +51,28 @@ namespace ESIITelemAPI.Controllers
                 
                 if (id.HasValue)
                     parameters.Add("Id", id.Value);
-
+                */
+                
                 await using (var command = new SqlCommand())
                 {
                     conn.Open();
                     command.Connection = conn;
                     command.CommandType = CommandType.StoredProcedure;
                     command.CommandText = procedure;
+                    
+                    if (id.HasValue)
+                    {
+                        command.Parameters.Add("@Id", SqlDbType.Int);
+                        command.Parameters["@Id"].Value = id;
+                    }
+
+                    if (payload.ValueKind != default(JsonValueKind))
+                    {
+                        var json = JsonSerializer.Serialize(payload);
+                        command.Parameters.Add("@Json", SqlDbType.NVarChar);
+                        command.Parameters["@Json"].Value = json;
+                    }
+                    
                     SqlDataReader reader = command.ExecuteReader();
                     while (reader.Read())
                     {
