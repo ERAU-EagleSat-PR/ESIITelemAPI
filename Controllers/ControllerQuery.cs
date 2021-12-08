@@ -26,6 +26,7 @@ namespace ESIITelemAPI.Controllers
         protected async Task<JsonElement> Query(string verb, string entityName, int? id = null, JsonElement payload = default(JsonElement))
         {
             JsonDocument result = null;
+            string query = "";
 
             if (!(new string[] {"get", "put"}).Contains(verb.ToLower()))
             {
@@ -49,18 +50,26 @@ namespace ESIITelemAPI.Controllers
                 
                 if (id.HasValue)
                     parameters.Add("Id", id.Value);
-                
-                var qr = await conn.ExecuteScalarAsync<string>(
-                    sql: procedure, 
-                    param: parameters, 
-                    commandType: CommandType.StoredProcedure
-                );
-                
-                if (qr != null)
-                    result = JsonDocument.Parse(qr);
+
+                await using (var command = new SqlCommand())
+                {
+                    conn.Open();
+                    command.Connection = conn;
+                    command.CommandType = CommandType.StoredProcedure;
+                    command.CommandText = procedure;
+                    SqlDataReader reader = command.ExecuteReader();
+                    while (reader.Read())
+                    {
+                        query += reader[0];
+                    }
+                    conn.Close();
+                }
+
+                if (query != "")
+                    result = JsonDocument.Parse(query);
             };
 
-            if (result == null) 
+            if (result == null)
                 result = JsonDocument.Parse("[]");
                         
             return result.RootElement;

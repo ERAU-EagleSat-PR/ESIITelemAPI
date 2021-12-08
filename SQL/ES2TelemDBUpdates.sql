@@ -22,17 +22,23 @@ GRANT EXECUTE ON SCHEMA::[web] TO [DotNetWebApp];
 GO
 
 /*
+------------------------------------------------------------------------------------------------------
+ */
+
+/*
     Return all eps data
  */
 CREATE OR ALTER PROCEDURE web.get_alleps
 AS
     SET NOCOUNT ON;
-SELECT downlink_id       AS DownlinkId,
-       avg_bat_voltage   AS AvgBatVoltage,
-       brownouts         AS Brownouts,
-       charge_time_min   AS ChargeTimeMins,
-       peak_charge_power AS PeakChargePower
+SELECT eps.downlink_id       AS DownlinkId,
+       avg_bat_voltage       AS AvgBatVoltage,
+       brownouts             AS Brownouts,
+       charge_time_min       AS ChargeTimeMins,
+       peak_charge_power     AS PeakChargePower,
+       DATEDIFF(s,'1970-01-01',downlink_timestamp) * CONVERT(BIGINT, 1000) AS DownlinkTimestamp
 FROM [eps]
+    INNER JOIN [telemetry] ON eps.downlink_id = telemetry.downlink_id
 FOR JSON PATH;
 GO
 
@@ -141,6 +147,10 @@ FROM OPENJSON(@Json) WITH ([DownlinkId] INT);
 GO
 
 /*
+------------------------------------------------------------------------------------------------------
+ */
+
+/*
 	Create new telemetry object
 */
 CREATE OR ALTER PROCEDURE web.put_telemetry @Json NVARCHAR(MAX)
@@ -187,3 +197,25 @@ SELECT downlink_id AS DownlinkId, downlink_timestamp AS DownlinkTimestamp, pass_
 FROM [telemetry]
 FOR JSON PATH;
 GO
+/*
+------------------------------------------------------------------------------------------------------
+ */
+
+/*
+    Return all MDE data
+ */
+CREATE OR ALTER PROCEDURE web.get_allmde
+AS
+    SET NOCOUNT ON;
+SELECT *
+FROM [mde]
+FOR JSON PATH;
+GO
+
+SELECT * FROM telemetry
+
+SELECT * FROM eps
+
+EXEC web.get_alleps
+
+EXEC web.get_alltelemetry
